@@ -9,6 +9,11 @@ def addDict(label, e, d):
     if label not in d:
         d.update({label:list()})
     d[label].append(e)
+
+def w2f(text, filename):
+    f = open(filename, "w")
+    f.write(text)
+    f.close()
                  
 nodes = dict() 
 edges = list()
@@ -151,15 +156,11 @@ outputa += '} \n'
 outputc += '} \n'
 output += "}"
 
-f = open('outb.dot',"w")
-f.write(output)
-f.close()
-f = open('outa.dot',"w")
-f.write(outputa)
-f.close()
-f = open('outc.dot',"w")
-f.write(outputc)
-f.close()
+w2f(output, 'outb.dot')
+w2f(outputa, 'outa.dot')
+w2f(outputc, 'outc.dot')
+
+
               
                         
         
