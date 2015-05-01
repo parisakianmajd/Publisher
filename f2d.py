@@ -19,20 +19,18 @@ publish = list()  # list of nodes that have to be published and their lineage
 covered = list()
 remove = list()
 abstract = dict()
+rules = list()
 
 command = 'dlv -silent '
 for a in sys.argv[1:]:
    command += a + " "
 
 proc = subprocess.Popen(command, stdout=subprocess.PIPE, shell=True)
-#proc = subprocess.Popen('dlv -silent pg.dlv ur.dlv propub_swallow_first_round.dlv', stdout=subprocess.PIPE, shell=True)
 
 (out, err) = proc.communicate()
-lst = out.strip().split("\n")
-rules = list()
+lst = out.strip().split('\n')
 for d in lst:
     rules.append(d[d.find("{")+1:d.find("}")].split(", "))
-
 for rule in rules:
         for r in rule:
             if ',' in r:
@@ -57,15 +55,15 @@ for r in custom['l_dep']:
     if r[0] in publish:
         publish.append(r[1])
 
-output = outputa= outputc ='digraph{ \n rankdir = RL \n'
+output = outputa= outputc ='digraph{\n rankdir = RL \n'
 for n in nodes:
     if n in ['data','actor']:
         if n == 'data':
-            outputa += 'node[shape=circle]\n'
-            output += 'node[shape=circle]\n'
+            outputa += 'node[shape = circle]\n'
+            output += 'node[shape = circle]\n'
         elif n == 'actor':
-            outputa += 'node[shape=box]\n'
-            output += 'node[shape=box]\n'
+            outputa += 'node[shape = box]\n'
+            output += 'node[shape = box]\n'
         if n in ['data', 'actor']:
             for node in nodes[n]:
                 outputa += str(node[0]) + '\n'
@@ -74,19 +72,20 @@ for n in nodes:
 for n in nodes:
     if n in ['l_data','l_actor']:
         if n == 'l_data':
-            outputc += 'node[shape=circle]\n'
+            outputc += 'node[shape = circle]\n'
         elif n == 'l_actor':
-            outputc += 'node[shape=box]\n'
+            outputc += 'node[shape = box]\n'
         for node in nodes[n]:
             if node[0] not in custom['anonymize']:  # the anonymized nodes are seperated as they have a different style
                 outputc += str(node[0]) + '\n'
 
 style = 'style=dashed penwidth = 2 fontcolor = "#197319" color = "#197319"'
-
+for c in custom['abstract']:
+                 addDict(c[1],c[0],abstract)
 for a in abstract:
-    outputc += 'node[shape=box]\n'
+    outputc += 'node[shape = box]\n'
     outputc += str(a) + '\n'
-    output += 'subgraph cluster' + str(a) + ' { ' + style + 'label= abstract\n'
+    output += 'subgraph cluster' + str(a) + ' { ' + style + 'label = abstract\n'
     for node in abstract[a]:
         output += str(node) + '\n'
 if len(abstract) != 0:
@@ -101,13 +100,11 @@ for e in edges:
                 outputc += 'node[shape=circle]\n'
             outputc += str(e[0]) +'\n'
 
-outputc += 'node[shape = circle style = filled fillcolor = "#D3D3D3" ]\n'
+outputc += 'node[shape = circle style = "filled, dotted" fillcolor = "#e0e0e0"]\n'
 for n in custom['anonymize']:
             outputc += str(n) + '\n'
 
-for c in custom['abstract']:
-                 addDict(c[1],c[0],abstract)
-edgestyle = 'edge[style=dashed color=blue] \n'            
+edgestyle = 'edge[style = dashed color = blue]\n'            
 output += edgestyle
 outputa += edgestyle
 
@@ -122,7 +119,7 @@ for e in edges:
 for rule in custom:
     if rule == 'hide_edge':
         for r in custom[rule]:
-            output += 'subgraph cluster' + str(r[0]) + ' { ' + style + ' label= hide \n'
+            output += 'subgraph cluster' + str(r[0]) + ' { ' + style + ' label = hide\n'
             for c in r:
                 covered.append(c)
                 output += str(c) + '\n'
@@ -148,17 +145,16 @@ for rule in custom:
             outputa += str(c) + '\n'
             outputa += '}\n'
     elif rule == 'l_dep_new':
+        outputc += 'edge[style=dashed color = "#197319"]\n'
         for c in custom[rule]:
             if (c[0],c[1]) not in [(e[0],e[1]) for e in edges]:
-                outputc += 'edge[style=dashed color = "#197319"] \n'
                 outputc += str(c[0]) + ' -> ' + str(c[1]) + '\n'
-
 
 output += '} \n'
 outputa += '} \n'
 outputc += '} \n'
-
 output += "}"
+
 f = open('outb.dot',"w")
 f.write(output)
 f.close()
