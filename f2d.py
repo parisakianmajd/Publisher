@@ -1,5 +1,4 @@
 # Converts dlv output to dot
-#! /usr/bin/env python
 # __author__ = "Parisa Kianmajd"
 #__version__ = "1.0.1"
 
@@ -11,22 +10,18 @@ def addDict(label, e, d):
         d.update({label:list()})
     d[label].append(e)
                  
-
 nodes = dict() 
 edges = list()
 custom = dict()
 publish = list()  # list of nodes that have to be published and their lineage
 covered = list()
-remove = list()
 abstract = dict()
 rules = list()
 
 command = 'dlv -silent '
 for a in sys.argv[1:]:
    command += a + " "
-
 proc = subprocess.Popen(command, stdout=subprocess.PIPE, shell=True)
-
 (out, err) = proc.communicate()
 lst = out.strip().split('\n')
 for d in lst:
@@ -48,12 +43,14 @@ for rule in rules:
             else:
                 label = r.split("(")[0]
                 start = r[r.find("(")+1:r.find(")")]
-                addDict(label, start, custom)  
-for r in custom['lineage']:
-    publish.append(r)
-for r in custom['l_dep']:
-    if r[0] in publish:
-        publish.append(r[1])
+                addDict(label, start, custom)
+if 'lineage' in custom:
+    for r in custom['lineage']:
+        publish.append(r)
+if 'l_dep' in custom:
+    for r in custom['l_dep']:
+        if r[0] in publish:
+            publish.append(r[1])
 
 output = outputa= outputc ='digraph{\n rankdir = RL \n'
 for n in nodes:
@@ -78,10 +75,11 @@ for n in nodes:
         for node in nodes[n]:
             if node[0] not in custom['anonymize']:  # the anonymized nodes are seperated as they have a different style
                 outputc += str(node[0]) + '\n'
-
+                
 style = 'style=dashed penwidth = 2 fontcolor = "#197319" color = "#197319"'
-for c in custom['abstract']:
-                 addDict(c[1],c[0],abstract)
+if 'abstract' in custom:
+    for c in custom['abstract']:
+                     addDict(c[1],c[0],abstract)
 for a in abstract:
     outputc += 'node[shape = box]\n'
     outputc += str(a) + '\n'
@@ -99,10 +97,10 @@ for e in edges:
             else:
                 outputc += 'node[shape=circle]\n'
             outputc += str(e[0]) +'\n'
-
-outputc += 'node[shape = circle style = "filled, dotted" fillcolor = "#e0e0e0"]\n'
-for n in custom['anonymize']:
-            outputc += str(n) + '\n'
+if 'anonymize' in custom:
+    outputc += 'node[shape = circle style = "filled, dotted" fillcolor = "#e0e0e0"]\n'
+    for n in custom['anonymize']:
+                outputc += str(n) + '\n'
 
 edgestyle = 'edge[style = dashed color = blue]\n'            
 output += edgestyle
@@ -131,9 +129,7 @@ for rule in custom:
                 output += str(c) + '\n }\n'
     elif rule == 'abstract':
         for c in custom[rule]:
-            if c[1] not in abstract:
-                abstract.update({c[1]:list()})
-            abstract[c[1]].append(c[0])
+            addDict(c[1],c[0],abstract)
     elif rule == 'anonymize':
         output += 'subgraph cluster' + custom[rule][0] + ' { ' + style + 'label= anonymize\n'
         for c in custom[rule]:
@@ -158,11 +154,12 @@ output += "}"
 f = open('outb.dot',"w")
 f.write(output)
 f.close()
-f2 = open('outa.dot',"w")
-f2.write(outputa)
+f = open('outa.dot',"w")
+f.write(outputa)
 f.close()
-f2 = open('outc.dot',"w")
-f2.write(outputc)
+f = open('outc.dot',"w")
+f.write(outputc)
+f.close()
               
                         
         
