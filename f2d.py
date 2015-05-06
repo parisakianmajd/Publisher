@@ -93,7 +93,6 @@ for a in abstract:
         output += str(node) + '\n'
 if len(abstract) != 0:
     output += '}\n'
-
 for e in edges:
     if e[2] == 'used':
         if e[1] in custom['hide_node'] and e[0] not in custom['hide_node']:
@@ -101,6 +100,10 @@ for e in edges:
                 outputc += 'node[shape=box]\n'
             else:
                 outputc += 'node[shape=circle]\n'
+                for a in edges:
+                    if a[0] == e[1]:
+                        end = a[1]
+            outputc += str(e[0]) + ' -> ' + str(end) + ' [style = invisible arrowhead = none]\n'
             outputc += str(e[0]) +'\n'
 if 'anonymize' in custom:
     outputc += 'node[shape = circle style = "filled, dotted" fillcolor = "#e0e0e0"]\n'
