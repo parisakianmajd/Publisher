@@ -128,8 +128,9 @@ w2f(output, 'outb.dot')
 w2f(outputa, 'outa.dot')
 
 outputc = [0] * (int(pRules['final'][0]) + 1)
-
+temp = ""
 for s in custom:
+    ncSub = set()
     outputc[s] = 'digraph{\n rankdir = RL \n'
     for label in custom[s]:
         if label in ['l_data','l_actor']:
@@ -140,19 +141,37 @@ for s in custom:
             for node in custom[s][label]:
                 if node[0] not in pRules['anonymize']:  # the anonymized nodes are seperated as they have a different style
                     outputc[s] += str(node[0]) + '\n'
-    if 'anonymize' in pRules:
-        outputc[s] += 'node[shape = circle style = "filled, dotted" fillcolor = "#e0e0e0"]\n'
-        for n in pRules['anonymize']:
-                    outputc[s] += str(n) + '\n'
     if s >= 1:
         if 's_abstract' in custom[s-1]:
             for c in custom[s-1]['s_abstract']:
                 outputc[s] += 'node[shape = box]\n'
                 outputc[s] += str(c[1]) + '\n'
+    if 'del_dep' in custom[s]:
+        for ed in custom[s]['del_dep']:
+            if ed[1] in pRules['hide_node'] and ed[0] not in pRules['hide_node']:
+                if ed[0] in nodes['data']:
+                    temp += 'node[shape=circle]\n'
+                else:
+                    temp += 'node[shape=box]\n'
+                temp += str(ed[0]) +'\n'
+                for a in custom[s]['del_dep']:
+                    if a[0] == ed[1]:
+                        temp += str(ed[0]) + ' -> ' + a[1] + ' [style = invisible arrowhead = none]\n'
+                        break
+    if temp!= "":
+        outputc[s] += temp
+    if 'anonymize' in pRules:
+        outputc[s] += 'node[shape = circle style = "filled, dotted" fillcolor = "#e0e0e0"]\n'
+        for n in pRules['anonymize']:
+                    outputc[s] += str(n) + '\n'
+    if 'nc' in custom[s]:
+        for c in custom[s]['nc']:
+            ncSub.add((c[0],c[1]))
+        for n in ncSub:
+            outputc[s] += 'subgraph cluster' + str(n[0]) + str(n[1]) + ' { ' + style + ' color = red fontcolor = red label= Cycle\n'
+            outputc[s] += str(n[0]) + '\n' +  str(n[1]) + '}\n'
 
 
-
-            
     outputc[s] += 'edge[style = dashed color = blue]\n' 
     for e in custom[s]['l_dep']:
         outputc[s] += str(e[0]) + ' -> ' + str(e[1]) + '\n'
