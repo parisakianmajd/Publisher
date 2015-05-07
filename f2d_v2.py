@@ -129,6 +129,9 @@ w2f(outputa, 'outa.dot')
 
 outputc = [0] * (int(pRules['final'][0]) + 1)
 temp = ""
+edges2 = list()
+for e in edges:
+    edges2.append((e[0],e[1]))
 for s in custom:
     ncSub = list()
     outputc[s] = 'digraph{\n rankdir = RL \n'
@@ -171,11 +174,14 @@ for s in custom:
         for n in ncSub:
             outputc[s] += 'subgraph cluster' + str(n[0]) + str(n[1]) + ' { ' + style + ' color = red fontcolor = red label= Cycle\n'
             outputc[s] += str(n[0]) + '\n' +  str(n[1]) + '}\n'
-
-
     outputc[s] += 'edge[style = dashed color = blue]\n' 
     for e in custom[s]['l_dep']:
-        outputc[s] += str(e[0]) + ' -> ' + str(e[1]) + '\n'
+        if e in edges2:
+            outputc[s] += str(e[0]) + ' -> ' + str(e[1]) + '\n'
+    outputc[s] += 'edge[style = dashed color = "#197319"]\n' 
+    for e in custom[s]['l_dep']:
+        if e not in edges2:
+            outputc[s] += str(e[0]) + ' -> ' + str(e[1]) + '\n'
     outputc[s] += '} \n'
     w2f(outputc[s], 'outc' + str(s) + '.dot')
 
