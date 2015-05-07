@@ -169,7 +169,6 @@ for s in custom:
             if (c[1],c[0]) not in ncSub:
                 ncSub.append((c[0],c[1]))
         for n in ncSub:
-            print n
             outputc[s] += 'subgraph cluster' + str(n[0]) + str(n[1]) + ' { ' + style + ' color = red fontcolor = red label= Cycle\n'
             outputc[s] += str(n[0]) + '\n' +  str(n[1]) + '}\n'
 
