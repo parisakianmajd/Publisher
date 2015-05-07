@@ -130,7 +130,7 @@ w2f(outputa, 'outa.dot')
 outputc = [0] * (int(pRules['final'][0]) + 1)
 temp = ""
 for s in custom:
-    ncSub = set()
+    ncSub = list()
     outputc[s] = 'digraph{\n rankdir = RL \n'
     for label in custom[s]:
         if label in ['l_data','l_actor']:
@@ -166,8 +166,10 @@ for s in custom:
                     outputc[s] += str(n) + '\n'
     if 'nc' in custom[s]:
         for c in custom[s]['nc']:
-            ncSub.add((c[0],c[1]))
+            if (c[1],c[0]) not in ncSub:
+                ncSub.append((c[0],c[1]))
         for n in ncSub:
+            print n
             outputc[s] += 'subgraph cluster' + str(n[0]) + str(n[1]) + ' { ' + style + ' color = red fontcolor = red label= Cycle\n'
             outputc[s] += str(n[0]) + '\n' +  str(n[1]) + '}\n'
 
