@@ -1,4 +1,5 @@
-# Converts dlv output to dot
+# f2d converts dlv output to dot
+# The code is aware of the states and generate a seperate output for each state in the process
 # __author__ = "Parisa Kianmajd"
 #__version__ = "1.0.1"
 
@@ -118,8 +119,6 @@ for rule in pRules:
             outputa += str(c) + '\n'
             outputa += '}\n'
 
-
-
 output += '} \n'
 outputa += '} \n'
 output += "}"
@@ -184,12 +183,3 @@ for s in custom:
             outputc[s] += str(e[0]) + ' -> ' + str(e[1]) + '\n'
     outputc[s] += '} \n'
     w2f(outputc[s], 'outc' + str(s) + '.dot')
-
-
-
-
-              
-                        
-        
-        
-    
