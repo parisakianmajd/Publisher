@@ -150,16 +150,17 @@ for s in custom:
                 outputc[s] += str(c[1]) + '\n'
     if 'del_dep' in custom[s]:
         for ed in custom[s]['del_dep']:
-            if ed[1] in pRules['hide_node'] and ed[0] not in pRules['hide_node']:
-                if ed[0] in nodes['data']:
-                    temp += 'node[shape=circle]\n'
-                else:
-                    temp += 'node[shape=box]\n'
-                temp += str(ed[0]) +'\n'
-                for a in custom[s]['del_dep']:
-                    if a[0] == ed[1]:
-                        temp += str(ed[0]) + ' -> ' + a[1] + ' [style = invisible arrowhead = none]\n'
-                        break
+            if s != 0:
+                if ed[1] in pRules['hide_node'] and ed[0] not in pRules['hide_node']:
+                    if ed[0] in nodes['data']:
+                        temp += 'node[shape=circle]\n'
+                    else:
+                        temp += 'node[shape=box]\n'
+                    temp += str(ed[0]) +'\n'
+                    for a in custom[s]['del_dep']:
+                        if a[0] == ed[1]:
+                            temp += str(ed[0]) + ' -> ' + a[1] + ' [style = invisible arrowhead = none]\n'
+                            break
     if temp!= "":
         outputc[s] += temp
     if 'anonymize' in pRules:
