@@ -139,6 +139,7 @@ temp = ""
 edges2 = list()
 for e in edges:
     edges2.append((e[0],e[1]))
+abst = set()
 for s in custom:
     ncSub = list()
     outputc[s] = 'digraph{\n rankdir = RL \n'
@@ -154,8 +155,10 @@ for s in custom:
     if s >= 1:
         if 's_abstract' in custom[s-1]:
             for c in custom[s-1]['s_abstract']:
+                abst.add(c[1])
+            for a in abst:
                 outputc[s] += 'node[shape = box]\n'
-                outputc[s] += str(c[1]) + '\n'
+                outputc[s] += str(a) + '\n'
     if 'del_dep' in custom[s]:
         for ed in custom[s]['del_dep']:
             if ed[1] in pRules['hide_node'] and ed[0] not in pRules['hide_node']:
