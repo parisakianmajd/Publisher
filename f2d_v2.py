@@ -15,6 +15,12 @@ def w2f(text, filename):
     f = open(filename, "w")
     f.write(text)
     f.close()
+
+def addSubgraph(group, label,output):
+    for g in group:
+        output += 'subgraph cluster' + str(g[0]) + str(g[1]) + ' { ' + style + ' color = red fontcolor = red label= "' + str(label) + '" \n'
+        output += str(g[0]) + '\n' +  str(g[1]) + '}\n'
+    return output
                  
 nodes = dict() 
 edges = list()
@@ -24,6 +30,8 @@ pRules = dict()
 publish = list()  # list of nodes that have to be published and their lineage
 covered = list()
 abstract = dict()
+
+ruleName = {'nc':'Cycle', 'nfs': 'Structural Conflict', 'wc': 'Write Conflict', 'nfs': 'False Independance'}
 
 command = 'dlv -silent '
 for a in sys.argv[1:]:
@@ -150,18 +158,17 @@ for s in custom:
                 outputc[s] += str(c[1]) + '\n'
     if 'del_dep' in custom[s]:
         for ed in custom[s]['del_dep']:
-            if s != 0:
-                if ed[1] in pRules['hide_node'] and ed[0] not in pRules['hide_node']:
-                    if ed[0] in nodes['data']:
-                        temp += 'node[shape=circle]\n'
-                    else:
-                        temp += 'node[shape=box]\n'
-                    temp += str(ed[0]) +'\n'
-                    for a in custom[s]['del_dep']:
-                        if a[0] == ed[1]:
-                            temp += str(ed[0]) + ' -> ' + a[1] + ' [style = invisible arrowhead = none]\n'
-                            break
-    if temp!= "":
+            if ed[1] in pRules['hide_node'] and ed[0] not in pRules['hide_node']:
+                if ed[0] in nodes['data']:
+                    temp += 'node[shape=circle]\n'
+                else:
+                    temp += 'node[shape=box]\n'
+                temp += str(ed[0]) +'\n'
+                for a in custom[s]['del_dep']:
+                    if a[0] == ed[1]:
+                        temp += str(ed[0]) + ' -> ' + a[1] + ' [style = invisible arrowhead = none]\n'
+                        break
+    if temp!= "" and s!= 0:
         outputc[s] += temp
     if 'anonymize' in pRules:
         outputc[s] += 'node[shape = circle style = "filled, dotted" fillcolor = "#e0e0e0"]\n'
@@ -171,9 +178,12 @@ for s in custom:
         for c in custom[s]['nc']:
             if (c[1],c[0]) not in ncSub:
                 ncSub.append((c[0],c[1]))
-        for n in ncSub:
-            outputc[s] += 'subgraph cluster' + str(n[0]) + str(n[1]) + ' { ' + style + ' color = red fontcolor = red label= Cycle\n'
-            outputc[s] += str(n[0]) + '\n' +  str(n[1]) + '}\n'
+        outputc[s] = addSubgraph(ncSub, ruleName['nc'], outputc[s])
+    for rule in ['wc','nfs']:
+        if rule in custom[s]:
+            outputc[s]= addSubgraph(custom[s][rule], ruleName[rule], outputc[s])
+    
+            
     outputc[s] += 'edge[style = dashed color = blue]\n' 
     for e in custom[s]['l_dep']:
         if e in edges2:
