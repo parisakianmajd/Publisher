@@ -196,4 +196,7 @@ for s in custom:
         if e not in edges2:
             outputc[s] += str(e[0]) + ' -> ' + str(e[1]) + '\n'
     outputc[s] += '} \n'
-    w2f(outputc[s], 'outc' + str(s) + '.dot')
+    filename = 'outc' + str(s) + '.dot'
+    w2f(outputc[s], filename)
+    command = 'neato -Tpdf ' + filename + ' -o ' + filename[:-4] + '.pdf'
+    proc2 = subprocess.Popen(command, stdout=subprocess.PIPE, shell=True)
